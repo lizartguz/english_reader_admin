@@ -1,0 +1,28 @@
+# Dependencias y artefactos: se instalan y generan dentro de la imagen.
+node_modules
+dist
+dist-ssr
+
+# Pruebas y sus reportes: no forman parte de la imagen de producción.
+e2e
+playwright.config.ts
+playwright-report
+test-results
+blob-report
+playwright/.cache
+
+# Configuración local: la de los contenedores llega por variables de entorno.
+.env
+.env.*
+!.env.example
+
+# Control de versiones y herramientas de escritorio.
+.git
+.gitignore
+.vscode
+.idea
+*.log
+Dockerfile
+.dockerignore
+README.md
+docs
