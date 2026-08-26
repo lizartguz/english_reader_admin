@@ -29,6 +29,12 @@ export const dashboardApi = {
   dictionaryWordsCount: () =>
     requestPaginated<unknown>({ url: '/admin/words', params: { limit: 1 } }).then((result) => result.meta.total),
 
+  pendingTranslationsCount: () =>
+    requestPaginated<unknown>({
+      url: '/admin/translations',
+      params: { reviewStatus: 'pending', limit: 1 },
+    }).then((result) => result.meta.total),
+
   activeClientsCount: () =>
     requestPaginated<unknown>({
       url: '/admin/users',

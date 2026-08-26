@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { FilterSelect } from '@/core/ui/misc/FilterSelect';
+import { DateRangeFilter } from '@/core/ui/misc/DateRangeFilter';
+import { toIsoRange } from '@/core/utils/date-range';
 import { PageHeader } from '@/core/ui/layout/PageHeader';
 import { FilterBar } from '@/core/ui/misc/FilterBar';
 import { DataTable } from '@/core/ui/tables/DataTable';
@@ -17,6 +19,9 @@ type LevelFilter = 'all' | SystemLogLevel;
 export function SystemLogsPage() {
   const [level, setLevel] = useState<LevelFilter>('all');
   const [source, setSource] = useState('');
+  const [errorCode, setErrorCode] = useState('');
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
   const [page, setPage] = useState(1);
   const [detailLog, setDetailLog] = useState<SystemLog | null>(null);
 
@@ -24,18 +29,24 @@ export function SystemLogsPage() {
     () => ({
       level: level === 'all' ? undefined : level,
       source: source || undefined,
+      errorCode: errorCode || undefined,
+      ...toIsoRange(from, to),
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [level, source, page],
+    [level, source, errorCode, from, to, page],
   );
 
   const query = useSystemLogsQuery(filters);
-  const hasActiveFilters = level !== 'all' || Boolean(source);
+  const hasActiveFilters =
+    level !== 'all' || Boolean(source) || Boolean(errorCode) || Boolean(from) || Boolean(to);
 
   function clearFilters() {
     setLevel('all');
     setSource('');
+    setErrorCode('');
+    setFrom('');
+    setTo('');
     setPage(1);
   }
 
@@ -71,6 +82,29 @@ export function SystemLogsPage() {
           onChange={(event) => {
             setPage(1);
             setSource(event.target.value);
+          }}
+        />
+        <Input
+          placeholder="Código de error"
+          className="w-48"
+          aria-label="Filtrar por código de error"
+          value={errorCode}
+          onChange={(event) => {
+            setPage(1);
+            setErrorCode(event.target.value);
+          }}
+        />
+        <DateRangeFilter
+          idPrefix="systemLog"
+          from={from}
+          to={to}
+          onFromChange={(value) => {
+            setPage(1);
+            setFrom(value);
+          }}
+          onToChange={(value) => {
+            setPage(1);
+            setTo(value);
           }}
         />
       </FilterBar>

@@ -97,6 +97,17 @@ export interface WordPayload {
   source?: string | null;
 }
 
+/**
+ * Alta de palabra con sus colecciones anidadas. Permite precargar el
+ * diccionario desde administración para que la app resuelva esas palabras
+ * desde la base local sin consultar proveedores externos.
+ */
+export interface CreateWordPayload extends WordPayload {
+  translations?: Array<{ targetLanguage: string; translation: string; meaningContext?: string | null }>;
+  examples?: Array<{ exampleText: string; sortOrder?: number }>;
+  pronunciations?: Array<{ accent?: string | null; phonetic?: string | null; audioUrl?: string | null }>;
+}
+
 export interface TranslationPayload {
   translation: string;
   meaningContext?: string | null;

@@ -20,6 +20,7 @@ export const routeAccessRules: Record<string, RouteAccessRule> = {
   [AdminRoutes.ReadingLevels]: { permissions: [PermissionCode.ReadingLevelsRead] },
   [AdminRoutes.Genres]: { permissions: [PermissionCode.GenresRead] },
   [AdminRoutes.Dictionary]: { permissions: [PermissionCode.WordsRead] },
+  [AdminRoutes.Translations]: { permissions: [PermissionCode.TranslationsRead] },
   [AdminRoutes.UsersClients]: { permissions: [PermissionCode.UsersRead] },
   [AdminRoutes.UsersAdmins]: { roles: [RoleCode.SuperAdmin] },
   [AdminRoutes.Roles]: { roles: [RoleCode.SuperAdmin] },

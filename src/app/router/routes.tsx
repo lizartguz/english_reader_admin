@@ -18,6 +18,7 @@ import { PermissionsPage } from '@/features/permissions/pages/PermissionsPage';
 import { ClientUsersPage } from '@/features/users/pages/ClientUsersPage';
 import { AdminUsersPage } from '@/features/users/pages/AdminUsersPage';
 import { DictionaryPage } from '@/features/dictionary/pages/DictionaryPage';
+import { TranslationsPage } from '@/features/translations/pages/TranslationsPage';
 import { StoriesPage } from '@/features/stories/pages/StoriesPage';
 import { ProtectedRoute, RequireAccess } from './protected-route';
 import { routeAccessRules } from './route-permissions';
@@ -45,6 +46,7 @@ export function AppRoutes() {
           <Route path="reading-levels" element={guarded('ReadingLevels', <ReadingLevelsPage />)} />
           <Route path="genres" element={guarded('Genres', <GenresPage />)} />
           <Route path="dictionary" element={guarded('Dictionary', <DictionaryPage />)} />
+          <Route path="translations" element={guarded('Translations', <TranslationsPage />)} />
           <Route path="users/clients" element={guarded('UsersClients', <ClientUsersPage />)} />
           <Route path="users/admins" element={guarded('UsersAdmins', <AdminUsersPage />)} />
           <Route path="roles" element={guarded('Roles', <RolesPage />)} />

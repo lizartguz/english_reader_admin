@@ -47,6 +47,7 @@ export const menuGroups: MenuGroup[] = [
     label: 'Diccionario',
     items: [
       { label: 'Palabras', path: AdminRoutes.Dictionary, icon: BookText, access: routeAccessRules[AdminRoutes.Dictionary] },
+      { label: 'Traducciones', path: AdminRoutes.Translations, icon: Languages, access: routeAccessRules[AdminRoutes.Translations] },
     ],
   },
   {

@@ -1,6 +1,7 @@
 import { request, requestPaginated } from '@/core/api/api-client';
 import type { PaginatedResult } from '@/core/api/api-response';
 import type {
+  CreateWordPayload,
   ReviewStatus,
   TranslationPayload,
   WordDetail,
@@ -19,7 +20,8 @@ export const wordsApi = {
 
   detail: (id: string) => request<WordDetail>({ url: `${WORDS_URL}/${id}` }),
 
-  create: (payload: WordPayload) => request<WordDetail>({ method: 'POST', url: WORDS_URL, data: payload }),
+  create: (payload: CreateWordPayload) =>
+    request<WordDetail>({ method: 'POST', url: WORDS_URL, data: payload }),
 
   update: (id: string, payload: Partial<WordPayload>) =>
     request<WordDetail>({ method: 'PATCH', url: `${WORDS_URL}/${id}`, data: payload }),

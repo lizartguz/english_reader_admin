@@ -1,6 +1,12 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { wordsApi } from '../api/words.api';
-import type { ReviewStatus, TranslationPayload, WordFilters, WordPayload } from '../types/word.types';
+import type {
+  CreateWordPayload,
+  ReviewStatus,
+  TranslationPayload,
+  WordFilters,
+  WordPayload,
+} from '../types/word.types';
 
 export const wordsKeys = {
   all: ['words'] as const,
@@ -42,7 +48,10 @@ function useDictionaryInvalidation() {
 
 export function useCreateWord() {
   const invalidate = useDictionaryInvalidation();
-  return useMutation({ mutationFn: (payload: WordPayload) => wordsApi.create(payload), onSuccess: invalidate });
+  return useMutation({
+    mutationFn: (payload: CreateWordPayload) => wordsApi.create(payload),
+    onSuccess: invalidate,
+  });
 }
 
 export function useUpdateWord() {

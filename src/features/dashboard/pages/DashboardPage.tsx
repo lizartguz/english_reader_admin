@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BookOpen, BookText, Clock, FileEdit, Users } from 'lucide-react';
+import { BookOpen, BookText, Clock, FileEdit, Languages, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PageHeader } from '@/core/ui/layout/PageHeader';
@@ -34,6 +34,7 @@ export function DashboardPage() {
   const canReadStories = hasPermission(PermissionCode.StoriesRead);
   const canReadWords = hasPermission(PermissionCode.WordsRead);
   const canReadUsers = hasPermission(PermissionCode.UsersRead);
+  const canReadTranslations = hasPermission(PermissionCode.TranslationsRead);
   const canReadAudit = hasPermission(PermissionCode.AuditRead);
 
   const published = useQuery({
@@ -50,6 +51,11 @@ export function DashboardPage() {
     queryKey: ['dashboard', 'words', 'total'],
     queryFn: dashboardApi.dictionaryWordsCount,
     enabled: canReadWords,
+  });
+  const pendingTranslations = useQuery({
+    queryKey: ['dashboard', 'translations', 'pending'],
+    queryFn: dashboardApi.pendingTranslationsCount,
+    enabled: canReadTranslations,
   });
   const clients = useQuery({
     queryKey: ['dashboard', 'users', 'active-clients'],
@@ -70,6 +76,9 @@ export function DashboardPage() {
         {canReadStories && <StatCard label="Historias publicadas" icon={BookOpen} query={published} />}
         {canReadStories && <StatCard label="Historias en borrador" icon={FileEdit} query={draft} />}
         {canReadWords && <StatCard label="Palabras en diccionario" icon={BookText} query={words} />}
+        {canReadTranslations && (
+          <StatCard label="Traducciones por revisar" icon={Languages} query={pendingTranslations} />
+        )}
         {canReadUsers && <StatCard label="Clientes activos" icon={Users} query={clients} />}
       </div>
 

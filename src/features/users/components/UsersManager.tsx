@@ -58,7 +58,10 @@ export function UsersManager({
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<StatusFilter>('all');
+  // Solo tiene sentido cuando la pantalla abarca más de un rol (administradores).
+  const [roleFilter, setRoleFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
+  const ofreceFiltroDeRol = roleCodes.length > 1;
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
@@ -70,22 +73,23 @@ export function UsersManager({
     () => ({
       search: search || undefined,
       status: status === 'all' ? undefined : status,
-      roleCode: roleCodes,
+      roleCode: roleFilter === 'all' ? roleCodes : [roleFilter as RoleCode],
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [search, status, roleCodes, page],
+    [search, status, roleCodes, roleFilter, page],
   );
 
   const query = useUsersQuery(filters);
   const statusMutation = useChangeUserStatus();
   const deleteMutation = useDeleteUser();
 
-  const hasActiveFilters = Boolean(search) || status !== 'all';
+  const hasActiveFilters = Boolean(search) || status !== 'all' || roleFilter !== 'all';
 
   function clearFilters() {
     setSearch('');
     setStatus('all');
+    setRoleFilter('all');
     setPage(1);
   }
 
@@ -175,6 +179,20 @@ export function UsersManager({
             { value: 'pending_verification', label: 'Pendientes' },
           ]}
         />
+        {ofreceFiltroDeRol && (
+          <FilterSelect
+            aria-label="Filtrar por rol"
+            value={roleFilter}
+            onValueChange={(value) => {
+              setPage(1);
+              setRoleFilter(value);
+            }}
+            options={[
+              { value: 'all', label: 'Todos los roles' },
+              ...roleCodes.map((code) => ({ value: code, label: code })),
+            ]}
+          />
+        )}
       </FilterBar>
 
       <DataTable

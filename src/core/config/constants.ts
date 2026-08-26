@@ -9,6 +9,7 @@ export const AdminRoutes = {
   ReadingLevels: '/admin/reading-levels',
   Genres: '/admin/genres',
   Dictionary: '/admin/dictionary',
+  Translations: '/admin/translations',
   UsersClients: '/admin/users/clients',
   UsersAdmins: '/admin/users/admins',
   Roles: '/admin/roles',
@@ -43,6 +44,12 @@ export const DEFAULT_PAGE_SIZE = 20;
 
 /** Tamaños de página ofrecidos al usuario. Deben respetar `PAGINATION.MaxLimit` de la API. */
 export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;
+
+/**
+ * Idiomas destino de traducción. Hoy la API solo acepta español; la lista
+ * existe para que agregar otro sea un cambio de una línea aquí y en la API.
+ */
+export const TARGET_LANGUAGES = [{ code: 'es', label: 'Español' }] as const;
 
 /** Límites de archivos administrativos (doc 02/11). */
 export const FILE_LIMITS = {

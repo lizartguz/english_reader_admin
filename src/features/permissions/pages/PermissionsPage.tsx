@@ -16,11 +16,17 @@ import { getPermissionColumns } from '../components/permissions-columns';
 export function PermissionsPage() {
   const [search, setSearch] = useState('');
   const [moduleFilter, setModuleFilter] = useState('all');
+  const [actionFilter, setActionFilter] = useState('all');
 
   const query = usePermissionsQuery();
 
   const modules = useMemo(() => {
     const unique = new Set((query.data ?? []).map((permission) => permission.module));
+    return Array.from(unique).sort();
+  }, [query.data]);
+
+  const actions = useMemo(() => {
+    const unique = new Set((query.data ?? []).map((permission) => permission.action));
     return Array.from(unique).sort();
   }, [query.data]);
 
@@ -30,19 +36,21 @@ export function PermissionsPage() {
 
     return items.filter((permission) => {
       const matchesModule = moduleFilter === 'all' || permission.module === moduleFilter;
+      const matchesAction = actionFilter === 'all' || permission.action === actionFilter;
       const matchesSearch =
         !term ||
         permission.code.toLowerCase().includes(term) ||
         (permission.description?.toLowerCase().includes(term) ?? false);
-      return matchesModule && matchesSearch;
+      return matchesModule && matchesAction && matchesSearch;
     });
-  }, [query.data, search, moduleFilter]);
+  }, [query.data, search, moduleFilter, actionFilter]);
 
-  const hasActiveFilters = Boolean(search) || moduleFilter !== 'all';
+  const hasActiveFilters = Boolean(search) || moduleFilter !== 'all' || actionFilter !== 'all';
 
   function clearFilters() {
     setSearch('');
     setModuleFilter('all');
+    setActionFilter('all');
   }
 
   const columns = getPermissionColumns();
@@ -71,6 +79,15 @@ export function PermissionsPage() {
           options={[
             { value: 'all', label: 'Todos los módulos' },
             ...modules.map((moduleName) => ({ value: moduleName, label: moduleName })),
+          ]}
+        />
+        <FilterSelect
+          aria-label="Filtrar por acción"
+          value={actionFilter}
+          onValueChange={setActionFilter}
+          options={[
+            { value: 'all', label: 'Todas las acciones' },
+            ...actions.map((action) => ({ value: action, label: action })),
           ]}
         />
       </FilterBar>
