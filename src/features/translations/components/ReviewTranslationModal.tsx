@@ -100,7 +100,7 @@ export function ReviewTranslationModal({
         },
       });
     } catch (error) {
-      setGeneralError(applyServerErrors(error, form.setError));
+      setGeneralError(applyServerErrors(error, form));
       return;
     }
 

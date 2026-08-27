@@ -1,6 +1,6 @@
 import axios, { AxiosHeaders, type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios';
 import { env } from '@/core/config/env';
-import { AdminMessages } from '@/core/config/constants';
+import { AdminMessages, REQUEST_TIMEOUT_MS } from '@/core/config/constants';
 import { useAuthStore } from '@/core/auth/auth-store';
 import { ApiError, ApiUnavailableError } from './api-error';
 import { refreshSession } from './auth-interceptor';
@@ -20,6 +20,7 @@ interface RetryableConfig extends InternalAxiosRequestConfig {
 export const httpClient = axios.create({
   baseURL: env.apiBaseUrl,
   withCredentials: true,
+  timeout: REQUEST_TIMEOUT_MS,
 });
 
 httpClient.interceptors.request.use((config) => {
@@ -58,7 +59,7 @@ httpClient.interceptors.response.use(
       }
     }
 
-    const body = error.response.data as ApiErrorEnvelope | undefined;
+    const body = await readErrorBody(error.response.data);
 
     return Promise.reject(
       new ApiError(
@@ -70,6 +71,27 @@ httpClient.interceptors.response.use(
     );
   },
 );
+
+/**
+ * Lee el cuerpo de una respuesta de error.
+ *
+ * Cuando la petición pidió `responseType: 'blob'` —como la descarga de recursos
+ * protegidos— el error también llega como `Blob`, así que leer `message` y
+ * `code` directamente devolvía `undefined` y todo fallo terminaba con el texto
+ * genérico. Aquí se convierte de vuelta a JSON para conservar el mensaje real
+ * que envió la API.
+ */
+async function readErrorBody(data: unknown): Promise<ApiErrorEnvelope | undefined> {
+  if (data instanceof Blob) {
+    try {
+      return JSON.parse(await data.text()) as ApiErrorEnvelope;
+    } catch {
+      return undefined;
+    }
+  }
+
+  return data as ApiErrorEnvelope | undefined;
+}
 
 /** Ejecuta una petición y devuelve directamente `data`, ya desenvuelta. */
 export async function request<T>(config: AxiosRequestConfig): Promise<T> {

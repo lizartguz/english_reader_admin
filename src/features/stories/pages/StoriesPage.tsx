@@ -16,6 +16,7 @@ import { toFriendlyMessage } from '@/core/errors/friendly-error';
 import { AdminMessages, DEFAULT_PAGE_SIZE } from '@/core/config/constants';
 import { usePermissions } from '@/core/auth/permission-checker';
 import { PermissionCode } from '@/core/permissions/permissions.enum';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useReadingLevelsQuery } from '@/features/reading-levels/hooks/use-reading-levels-query';
 import { useChangeStoryStatus, useDeleteStory, useStoriesQuery } from '../hooks/use-stories';
 import { getStoryColumns } from '../components/stories-columns';
@@ -35,6 +36,7 @@ export function StoriesPage() {
   const canManageFiles = hasPermission(PermissionCode.FilesUpload) || hasPermission(PermissionCode.FilesDelete);
 
   const [search, setSearch] = useState('');
+  const searchDiferido = useDebouncedValue(search);
   const [status, setStatus] = useState<StatusFilter>('all');
   const [readingLevelId, setReadingLevelId] = useState('all');
   const [publishedFrom, setPublishedFrom] = useState('');
@@ -55,7 +57,7 @@ export function StoriesPage() {
 
   const filters: StoryFilters = useMemo(
     () => ({
-      search: search || undefined,
+      search: searchDiferido || undefined,
       status: status === 'all' ? undefined : status,
       readingLevelId: readingLevelId === 'all' ? undefined : readingLevelId,
       // El input entrega `YYYY-MM-DD`; la API espera ISO 8601 completo.
@@ -66,7 +68,7 @@ export function StoriesPage() {
       sort,
       order,
     }),
-    [search, status, readingLevelId, publishedFrom, publishedTo, page, pageSize, sort, order],
+    [searchDiferido, status, readingLevelId, publishedFrom, publishedTo, page, pageSize, sort, order],
   );
 
   const query = useStoriesQuery(filters);

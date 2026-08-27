@@ -17,6 +17,22 @@ server {
     add_header X-Frame-Options "DENY" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
+    # Content-Security-Policy: limita el daño si alguna vez se cuela una
+    # inyección, propia o a través de una dependencia. Notas de cada directiva:
+    #
+    # - script-src 'self': el build de Vite no deja scripts en línea; todo el
+    #   JavaScript sale de /assets/ y de /config.js, ambos del mismo origen.
+    # - style-src incluye 'unsafe-inline' porque Base UI y sonner insertan
+    #   estilos en línea al montarse; sin eso la interfaz se rompe.
+    # - img-src incluye blob: para las vistas previas de portadas, que se
+    #   descargan autenticadas y se muestran como URL de objeto.
+    # - font-src 'self': las tipografías vienen empaquetadas, no de un CDN.
+    # - connect-src se completa al arrancar el contenedor con el origen real de
+    #   la API (docker/15-csp-origin.envsh), porque cambia según el ambiente.
+    # - frame-ancestors 'none' duplica X-Frame-Options para navegadores que ya
+    #   solo atienden la CSP.
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' ${API_ORIGIN}; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'" always;
+
     # Los assets llevan hash en el nombre, así que se pueden cachear sin límite.
     location /assets/ {
         expires 1y;

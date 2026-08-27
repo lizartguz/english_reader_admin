@@ -15,6 +15,7 @@ import { toFriendlyMessage } from '@/core/errors/friendly-error';
 import { AdminMessages, DEFAULT_PAGE_SIZE } from '@/core/config/constants';
 import { usePermissions } from '@/core/auth/permission-checker';
 import { PermissionCode } from '@/core/permissions/permissions.enum';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useDeleteWord, useReviewWord, useWordsQuery } from '../hooks/use-words';
 import { getWordColumns } from '../components/words-columns';
 import { WordFormModal } from '../components/WordFormModal';
@@ -35,6 +36,7 @@ export function DictionaryPage() {
   const canReadTranslations = hasPermission(PermissionCode.TranslationsRead);
 
   const [search, setSearch] = useState('');
+  const searchDiferido = useDebouncedValue(search);
   const [reviewStatus, setReviewStatus] = useState<ReviewFilter>('all');
   const [partOfSpeech, setPartOfSpeech] = useState<PartOfSpeechFilter>('all');
   const [page, setPage] = useState(1);
@@ -47,13 +49,13 @@ export function DictionaryPage() {
 
   const filters: WordFilters = useMemo(
     () => ({
-      search: search || undefined,
+      search: searchDiferido || undefined,
       reviewStatus: reviewStatus === 'all' ? undefined : reviewStatus,
       partOfSpeech: partOfSpeech === 'all' ? undefined : partOfSpeech,
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [search, reviewStatus, partOfSpeech, page],
+    [searchDiferido, reviewStatus, partOfSpeech, page],
   );
 
   const query = useWordsQuery(filters);

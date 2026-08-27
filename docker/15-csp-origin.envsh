@@ -1,0 +1,20 @@
+#!/bin/sh
+# Deriva el origen de la API para la cabecera Content-Security-Policy.
+#
+# Este archivo termina en `.envsh` a propósito: el entrypoint de nginx lo
+# **incorpora** al shell en vez de ejecutarlo en un subproceso, así que la
+# variable exportada aquí sigue disponible para `20-envsubst-on-templates.sh`,
+# que es quien sustituye los marcadores de la plantilla de nginx.
+#
+# El numeral 15 lo coloca antes de esa sustitución; `30-config.sh` corre después
+# y genera el `config.js` que lee el navegador.
+set -eu
+
+: "${API_BASE_URL:?Falta la variable API_BASE_URL con la URL de english_reader_api}"
+
+# La CSP razona en orígenes (esquema + host + puerto), no en rutas: de
+# `https://api.ejemplo.com/api/v1` solo interesa `https://api.ejemplo.com`.
+API_ORIGIN=$(printf '%s' "$API_BASE_URL" | sed -E 's#^(https?://[^/]+).*#\1#')
+export API_ORIGIN
+
+echo "CSP: connect-src permitirá $API_ORIGIN"

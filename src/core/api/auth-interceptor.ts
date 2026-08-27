@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { env } from '@/core/config/env';
-import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '@/core/config/constants';
+import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME, REQUEST_TIMEOUT_MS } from '@/core/config/constants';
 import { readCookie } from '@/core/utils/cookies';
 import { useAuthStore } from '@/core/auth/auth-store';
 import type { AuthSessionPayload } from '@/core/auth/auth-session';
@@ -10,7 +10,11 @@ import type { ApiSuccessEnvelope } from './api-response';
  * Instancia aislada solo para `/auth/refresh`, para no reentrar en el
  * interceptor de respuesta de `httpClient` (evita recursión infinita).
  */
-const refreshClient = axios.create({ baseURL: env.apiBaseUrl, withCredentials: true });
+const refreshClient = axios.create({
+  baseURL: env.apiBaseUrl,
+  withCredentials: true,
+  timeout: REQUEST_TIMEOUT_MS,
+});
 
 let ongoingRefresh: Promise<string | null> | null = null;
 

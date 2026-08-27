@@ -13,6 +13,15 @@ export const rolesApi = {
   list: (filters: RoleFilters): Promise<PaginatedResult<Role>> =>
     requestPaginated<Role>({ url: BASE_URL, params: filters }),
 
+  /**
+   * Rol individual, siempre recién traído del servidor.
+   *
+   * El modal de permisos envía el conjunto **completo**, así que partir de la
+   * copia cacheada del listado haría que se sobrescribieran en silencio los
+   * cambios que otro administrador acabara de guardar.
+   */
+  detail: (id: string) => request<Role>({ url: `${BASE_URL}/${id}` }),
+
   updatePermissions: (id: string, permissionCodes: string[]) =>
     request<Role>({ method: 'PATCH', url: `${BASE_URL}/${id}/permissions`, data: { permissionCodes } }),
 };

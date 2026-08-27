@@ -1,3 +1,17 @@
+/**
+ * Tiempo máximo de espera de una petición HTTP.
+ *
+ * Sin él, una respuesta que nunca llega deja la promesa colgada para siempre:
+ * el arranque de la app se quedaría en «Verificando sesión…» sin error ni
+ * salida, porque el estado nunca abandonaría `checking`. Vencido el plazo,
+ * axios corta y el flujo normal lo convierte en `ApiUnavailableError`.
+ *
+ * Vive aquí, y no en `api-client`, porque `auth-interceptor` también lo
+ * necesita y esos dos módulos se importan mutuamente: leerlo desde uno de ellos
+ * dejaría la constante en zona muerta temporal al cargar la aplicación.
+ */
+export const REQUEST_TIMEOUT_MS = 15_000;
+
 /** Rutas administrativas centralizadas. Nunca escribir strings de ruta sueltos. */
 export const AdminRoutes = {
   Login: '/login',

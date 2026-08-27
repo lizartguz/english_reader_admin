@@ -20,6 +20,7 @@ import { AdminUsersPage } from '@/features/users/pages/AdminUsersPage';
 import { DictionaryPage } from '@/features/dictionary/pages/DictionaryPage';
 import { TranslationsPage } from '@/features/translations/pages/TranslationsPage';
 import { StoriesPage } from '@/features/stories/pages/StoriesPage';
+import { NotFoundPage } from '@/core/ui/feedback/NotFoundState';
 import { ProtectedRoute, RequireAccess } from './protected-route';
 import { routeAccessRules } from './route-permissions';
 
@@ -59,7 +60,9 @@ export function AppRoutes() {
       </Route>
 
       <Route path="/" element={<Navigate to={AdminRoutes.Dashboard} replace />} />
-      <Route path="*" element={<Navigate to={AdminRoutes.Dashboard} replace />} />
+
+      {/* Una ruta desconocida se dice, no se disimula redirigiendo al inicio. */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

@@ -14,6 +14,7 @@ import { toFriendlyMessage } from '@/core/errors/friendly-error';
 import { AdminMessages, DEFAULT_PAGE_SIZE } from '@/core/config/constants';
 import { usePermissions } from '@/core/auth/permission-checker';
 import { PermissionCode } from '@/core/permissions/permissions.enum';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useReadingLevelsQuery } from '../hooks/use-reading-levels-query';
 import { useDeleteReadingLevel, useUpdateReadingLevel } from '../hooks/use-reading-level-mutations';
 import { getReadingLevelColumns } from '../components/reading-levels-columns';
@@ -29,6 +30,7 @@ export function ReadingLevelsPage() {
   const canDelete = hasPermission(PermissionCode.ReadingLevelsDelete);
 
   const [search, setSearch] = useState('');
+  const searchDiferido = useDebouncedValue(search);
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>('all');
   const [page, setPage] = useState(1);
 
@@ -38,12 +40,12 @@ export function ReadingLevelsPage() {
 
   const filters: ReadingLevelFilters = useMemo(
     () => ({
-      search: search || undefined,
+      search: searchDiferido || undefined,
       isActive: activeFilter === 'all' ? undefined : activeFilter === 'active',
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [search, activeFilter, page],
+    [searchDiferido, activeFilter, page],
   );
 
   const query = useReadingLevelsQuery(filters);

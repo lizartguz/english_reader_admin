@@ -11,6 +11,8 @@ export interface Role {
 
 export interface RoleFilters {
   search?: string;
+  /** `true` = roles base del sistema, `false` = personalizados. */
+  isSystem?: boolean;
   page?: number;
   limit?: number;
 }

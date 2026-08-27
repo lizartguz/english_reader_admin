@@ -110,7 +110,7 @@ export function WordFormModal({ open, onOpenChange, word }: WordFormModalProps) 
         AppFeedback.success(isEditing ? AdminMessages.UpdatedSuccess : AdminMessages.CreatedSuccess);
         onOpenChange(false);
       })
-      .catch((error) => setGeneralError(applyServerErrors(error, form.setError)));
+      .catch((error) => setGeneralError(applyServerErrors(error, form)));
   }
 
   return (
@@ -178,19 +178,29 @@ export function WordFormModal({ open, onOpenChange, word }: WordFormModalProps) 
           >
             {traducciones.fields.map((field, index) => (
               <div key={field.id} className="flex items-start gap-2">
-                <Controller
-                  control={form.control}
-                  name={`translations.${index}.targetLanguage`}
-                  render={({ field: langField }) => (
-                    <FilterSelect
-                      aria-label={`Idioma de la traducción ${index + 1}`}
-                      value={langField.value}
-                      onValueChange={langField.onChange}
-                      options={LANGUAGE_OPTIONS}
-                      className="w-28 shrink-0"
-                    />
+                <div className="w-28 shrink-0 space-y-1">
+                  <Controller
+                    control={form.control}
+                    name={`translations.${index}.targetLanguage`}
+                    render={({ field: langField }) => (
+                      <FilterSelect
+                        aria-label={`Idioma de la traducción ${index + 1}`}
+                        value={langField.value}
+                        onValueChange={langField.onChange}
+                        options={LANGUAGE_OPTIONS}
+                        className="w-full"
+                      />
+                    )}
+                  />
+                  {/* La API valida el idioma destino y devuelve el error en esta
+                      ruta; sin este bloque el mensaje se aplicaba al formulario
+                      pero no se mostraba en ningún lado. */}
+                  {form.formState.errors.translations?.[index]?.targetLanguage && (
+                    <p className="text-xs text-destructive" role="alert">
+                      {form.formState.errors.translations[index]?.targetLanguage?.message}
+                    </p>
                   )}
-                />
+                </div>
                 <div className="flex-1 space-y-1">
                   <Input
                     aria-label={`Traducción ${index + 1}`}

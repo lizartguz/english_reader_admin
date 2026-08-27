@@ -42,6 +42,11 @@ export function AssetPreview({ asset }: { asset: StoryAsset }) {
     return () => {
       revoked = true;
       if (created) URL.revokeObjectURL(created);
+      // Se limpia el estado junto con la URL: si solo se revocara, al cambiar
+      // de recurso el `<img>` seguiría apuntando a una URL ya liberada hasta
+      // que llegara la descarga nueva.
+      setObjectUrl(null);
+      setFailed(false);
     };
   }, [asset.id, isImage]);
 

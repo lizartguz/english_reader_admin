@@ -9,6 +9,7 @@ import { DataTable } from '@/core/ui/tables/DataTable';
 import { TablePagination } from '@/core/ui/tables/TablePagination';
 import { EmptyState } from '@/core/ui/feedback/EmptyState';
 import { DEFAULT_PAGE_SIZE } from '@/core/config/constants';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useSystemLogsQuery } from '../hooks/use-system-logs-query';
 import { getSystemLogColumns } from '../components/system-logs-columns';
 import { SystemLogDetailDialog } from '../components/SystemLogDetailDialog';
@@ -19,7 +20,9 @@ type LevelFilter = 'all' | SystemLogLevel;
 export function SystemLogsPage() {
   const [level, setLevel] = useState<LevelFilter>('all');
   const [source, setSource] = useState('');
+  const sourceDiferido = useDebouncedValue(source);
   const [errorCode, setErrorCode] = useState('');
+  const errorCodeDiferido = useDebouncedValue(errorCode);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [page, setPage] = useState(1);
@@ -28,13 +31,13 @@ export function SystemLogsPage() {
   const filters: SystemLogFilters = useMemo(
     () => ({
       level: level === 'all' ? undefined : level,
-      source: source || undefined,
-      errorCode: errorCode || undefined,
+      source: sourceDiferido || undefined,
+      errorCode: errorCodeDiferido || undefined,
       ...toIsoRange(from, to),
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [level, source, errorCode, from, to, page],
+    [level, sourceDiferido, errorCodeDiferido, from, to, page],
   );
 
   const query = useSystemLogsQuery(filters);

@@ -41,7 +41,7 @@ export function LoginPage() {
       AppFeedback.success('Sesión iniciada correctamente.');
     },
     onError: (error) => {
-      setGeneralError(applyServerErrors(error, form.setError));
+      setGeneralError(applyServerErrors(error, form));
     },
   });
 

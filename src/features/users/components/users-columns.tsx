@@ -22,6 +22,8 @@ const STATUS_TONES: Record<UserStatus, StatusTone> = {
 
 interface ColumnActions {
   canUpdate: boolean;
+  /** Cuenta con la que se navega, para no ofrecer acciones sobre uno mismo. */
+  currentUserId: string | null;
   onView: (user: AdminUser) => void;
   canDelete: boolean;
   canAssignRoles: boolean;
@@ -35,6 +37,7 @@ interface ColumnActions {
 
 export function getUserColumns({
   canUpdate,
+  currentUserId,
   onView,
   canDelete,
   canAssignRoles,
@@ -96,6 +99,12 @@ export function getUserColumns({
         const isBlocked = user.status === 'blocked';
         const isActive = user.status === 'active';
 
+        // Cambiar el estado, los roles o eliminar la propia cuenta son acciones
+        // que la API rechaza: ofrecerlas solo produce un error inevitable, y en
+        // el caso de los roles evita además que alguien se degrade a sí mismo y
+        // se quede sin acceso.
+        const esCuentaPropia = currentUserId !== null && user.id === currentUserId;
+
         const actions: RowAction[] = [
           { key: 'view', label: 'Ver', icon: Eye, onSelect: () => onView(user) },
           { key: 'edit', label: 'Editar', icon: Pencil, visible: canUpdate, onSelect: () => onEdit(user) },
@@ -103,28 +112,28 @@ export function getUserColumns({
             key: 'toggle-active',
             label: isActive ? 'Desactivar' : 'Activar',
             icon: CheckCircle2,
-            visible: canUpdate && !isBlocked,
+            visible: canUpdate && !isBlocked && !esCuentaPropia,
             onSelect: () => onToggleActive(user),
           },
           {
             key: 'toggle-blocked',
             label: isBlocked ? 'Desbloquear' : 'Bloquear',
             icon: Ban,
-            visible: canUpdate,
+            visible: canUpdate && !esCuentaPropia,
             onSelect: () => onToggleBlocked(user),
           },
           {
             key: 'roles',
             label: 'Asignar roles',
             icon: ShieldCheck,
-            visible: canAssignRoles,
+            visible: canAssignRoles && !esCuentaPropia,
             onSelect: () => onAssignRoles(user),
           },
           {
             key: 'delete',
             label: 'Eliminar',
             icon: Trash2,
-            visible: canDelete,
+            visible: canDelete && !esCuentaPropia,
             destructive: true,
             separatorBefore: true,
             onSelect: () => onDelete(user),

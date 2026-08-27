@@ -8,6 +8,7 @@ import { DataTable } from '@/core/ui/tables/DataTable';
 import { TablePagination } from '@/core/ui/tables/TablePagination';
 import { EmptyState } from '@/core/ui/feedback/EmptyState';
 import { DEFAULT_PAGE_SIZE } from '@/core/config/constants';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useRolesQuery } from '../hooks/use-roles-query';
 import { getRoleColumns } from '../components/roles-columns';
 import { RolePermissionsModal } from '../components/RolePermissionsModal';
@@ -15,24 +16,23 @@ import type { Role, RoleFilters } from '../types/role.types';
 
 export function RolesPage() {
   const [search, setSearch] = useState('');
+  const searchDiferido = useDebouncedValue(search);
   const [tipo, setTipo] = useState<'all' | 'system' | 'custom'>('all');
   const [page, setPage] = useState(1);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   const filters: RoleFilters = useMemo(
-    () => ({ search: search || undefined, page, limit: DEFAULT_PAGE_SIZE }),
-    [search, page],
+    () => ({
+      search: searchDiferido || undefined,
+      isSystem: tipo === 'all' ? undefined : tipo === 'system',
+      page,
+      limit: DEFAULT_PAGE_SIZE,
+    }),
+    [searchDiferido, tipo, page],
   );
 
   const query = useRolesQuery(filters);
-
-  // La API no filtra por `isSystem`, así que se resuelve sobre la página ya
-  // cargada. Los roles son pocos y caben en una sola página.
-  const roles = useMemo(() => {
-    const items = query.data?.items ?? [];
-    if (tipo === 'all') return items;
-    return items.filter((role) => (tipo === 'system' ? role.isSystem : !role.isSystem));
-  }, [query.data, tipo]);
+  const roles = query.data?.items ?? [];
 
   const columns = getRoleColumns();
 
@@ -65,7 +65,10 @@ export function RolesPage() {
         <FilterSelect
           aria-label="Filtrar por tipo de rol"
           value={tipo}
-          onValueChange={(value) => setTipo(value as 'all' | 'system' | 'custom')}
+          onValueChange={(value) => {
+            setPage(1);
+            setTipo(value as 'all' | 'system' | 'custom');
+          }}
           options={[
             { value: 'all', label: 'Todos los tipos' },
             { value: 'system', label: 'Del sistema' },

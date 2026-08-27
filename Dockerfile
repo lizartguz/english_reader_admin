@@ -28,11 +28,18 @@ RUN npm run build
 FROM nginxinc/nginx-unprivileged:1.27-alpine AS runtime
 
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# La configuración de nginx entra como plantilla, no como archivo final: el
+# entrypoint de la imagen sustituye `${API_ORIGIN}` en la cabecera
+# Content-Security-Policy antes de arrancar, con el origen real de cada
+# ambiente. `15-csp-origin.envsh` lo calcula y `30-config.sh` genera el
+# `config.js` que consume el navegador.
+COPY docker/default.conf.template /etc/nginx/templates/default.conf.template
+COPY docker/15-csp-origin.envsh /docker-entrypoint.d/15-csp-origin.envsh
 COPY docker/30-config.sh /docker-entrypoint.d/30-config.sh
 
 USER root
-RUN chmod +x /docker-entrypoint.d/30-config.sh
+RUN chmod +x /docker-entrypoint.d/15-csp-origin.envsh /docker-entrypoint.d/30-config.sh
 USER nginx
 
 EXPOSE 8080

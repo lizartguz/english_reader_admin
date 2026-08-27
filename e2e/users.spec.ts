@@ -54,6 +54,24 @@ test.describe('Usuarios', () => {
     await expect(page.getByTestId('data-table-row').filter({ hasText: 'CLIENT' })).toHaveCount(0)
   })
 
+  test('no ofrece acciones destructivas sobre la propia cuenta', async ({ superAdminPage: page }) => {
+    await navigateTo(page, 'nav-users-admins', 'Usuarios administradores')
+
+    // La API rechaza cambiar el estado, los roles o eliminar la cuenta propia;
+    // sobre los roles no lo hacía, y un super administrador podía degradarse a
+    // sí mismo y quedarse sin acceso. Aquí no debe siquiera ofrecerse.
+    const propia = rowWith(page, 'superadmin@englishreader.local')
+    await expect(propia).toBeVisible()
+    await propia.getByTestId('row-actions').click()
+
+    await expect(page.getByRole('menuitem', { name: 'Ver' })).toBeVisible()
+    for (const accion of ['Asignar roles', 'Eliminar', 'Bloquear', 'Desactivar']) {
+      await expect(page.getByRole('menuitem', { name: accion })).toHaveCount(0)
+    }
+
+    await page.keyboard.press('Escape')
+  })
+
   test('rechaza una contraseña que no cumple la política', async ({ superAdminPage: page }) => {
     await navigateTo(page, 'nav-users-clients', 'Usuarios cliente')
 

@@ -1,8 +1,15 @@
 import { z } from 'zod';
 
+/**
+ * Espejo de `PASSWORD_POLICY` en la API
+ * (`src/common/decorators/is-secure-password.decorator.ts`). El máximo de 72
+ * viene del límite de bcrypt y lo valida el servidor: replicarlo aquí evita
+ * enviar una contraseña que ya se sabe que será rechazada.
+ */
 const passwordRules = z
   .string()
   .min(8, 'La contraseña debe tener al menos 8 caracteres.')
+  .max(72, 'La contraseña no puede superar 72 caracteres.')
   .regex(/[a-z]/, 'La contraseña debe incluir una letra minúscula.')
   .regex(/[A-Z]/, 'La contraseña debe incluir una letra mayúscula.')
   .regex(/[0-9]/, 'La contraseña debe incluir un número.');

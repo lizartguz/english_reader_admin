@@ -43,7 +43,7 @@ export function ChangePasswordModal({
         });
         onOpenChange(false);
       })
-      .catch((error) => setGeneralError(applyServerErrors(error, form.setError)));
+      .catch((error) => setGeneralError(applyServerErrors(error, form)));
   }
 
   return (

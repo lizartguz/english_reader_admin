@@ -79,7 +79,7 @@ export function StoryFormModal({ open, onOpenChange, story }: StoryFormModalProp
         AppFeedback.success(isEditing ? AdminMessages.UpdatedSuccess : AdminMessages.CreatedSuccess);
         onOpenChange(false);
       })
-      .catch((error) => setGeneralError(applyServerErrors(error, form.setError)));
+      .catch((error) => setGeneralError(applyServerErrors(error, form)));
   }
 
   const levelOptions = (levelsQuery.data?.items ?? []).map((level) => ({

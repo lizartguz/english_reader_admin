@@ -13,6 +13,7 @@ import { toFriendlyMessage } from '@/core/errors/friendly-error';
 import { AdminMessages, DEFAULT_PAGE_SIZE, TARGET_LANGUAGES } from '@/core/config/constants';
 import { usePermissions } from '@/core/auth/permission-checker';
 import { PermissionCode } from '@/core/permissions/permissions.enum';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useDeleteTranslationGlobal, useReviewTranslationGlobal, useTranslationsQuery } from '../hooks/use-translations';
 import { getTranslationColumns } from '../components/translations-columns';
 import { ReviewTranslationModal } from '../components/ReviewTranslationModal';
@@ -34,9 +35,11 @@ export function TranslationsPage() {
   const canDelete = hasPermission(PermissionCode.TranslationsDelete);
 
   const [word, setWord] = useState('');
+  const wordDiferido = useDebouncedValue(word);
   const [reviewStatus, setReviewStatus] = useState<ReviewFilter>('all');
   const [targetLanguage, setTargetLanguage] = useState('all');
   const [source, setSource] = useState('');
+  const sourceDiferido = useDebouncedValue(source);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
   const [sort, setSort] = useState('updatedAt');
@@ -47,16 +50,16 @@ export function TranslationsPage() {
 
   const filters: TranslationFilters = useMemo(
     () => ({
-      word: word || undefined,
+      word: wordDiferido || undefined,
       reviewStatus: reviewStatus === 'all' ? undefined : reviewStatus,
       targetLanguage: targetLanguage === 'all' ? undefined : targetLanguage,
-      source: source || undefined,
+      source: sourceDiferido || undefined,
       page,
       limit: pageSize,
       sort,
       order,
     }),
-    [word, reviewStatus, targetLanguage, source, page, pageSize, sort, order],
+    [wordDiferido, reviewStatus, targetLanguage, sourceDiferido, page, pageSize, sort, order],
   );
 
   const query = useTranslationsQuery(filters);

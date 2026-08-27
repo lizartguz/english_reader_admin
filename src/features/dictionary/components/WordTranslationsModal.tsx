@@ -67,7 +67,7 @@ export function WordTranslationsModal({ word, onOpenChange }: WordTranslationsMo
         AppFeedback.success('Traducción creada correctamente.');
         form.reset({ translation: '', meaningContext: '' });
       })
-      .catch((error) => setGeneralError(applyServerErrors(error, form.setError)));
+      .catch((error) => setGeneralError(applyServerErrors(error, form)));
   }
 
   function review(translation: WordTranslation, reviewStatus: 'reviewed' | 'rejected') {

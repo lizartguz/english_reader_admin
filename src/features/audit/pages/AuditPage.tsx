@@ -11,6 +11,7 @@ import { DataTable } from '@/core/ui/tables/DataTable';
 import { TablePagination } from '@/core/ui/tables/TablePagination';
 import { EmptyState } from '@/core/ui/feedback/EmptyState';
 import { DEFAULT_PAGE_SIZE } from '@/core/config/constants';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useAuditLogsQuery } from '../hooks/use-audit-logs-query';
 import { getAuditColumns } from '../components/audit-columns';
 import { AuditDetailDialog } from '../components/AuditDetailDialog';
@@ -18,7 +19,9 @@ import type { AuditLog, AuditLogFilters } from '../types/audit-log.types';
 
 export function AuditPage() {
   const [action, setAction] = useState('');
+  const actionDiferido = useDebouncedValue(action);
   const [entityType, setEntityType] = useState('');
+  const entityTypeDiferido = useDebouncedValue(entityType);
   const [actorUserId, setActorUserId] = useState('all');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -31,14 +34,14 @@ export function AuditPage() {
 
   const filters: AuditLogFilters = useMemo(
     () => ({
-      action: action || undefined,
-      entityType: entityType || undefined,
+      action: actionDiferido || undefined,
+      entityType: entityTypeDiferido || undefined,
       actorUserId: actorUserId === 'all' ? undefined : actorUserId,
       ...toIsoRange(from, to),
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [action, entityType, actorUserId, from, to, page],
+    [actionDiferido, entityTypeDiferido, actorUserId, from, to, page],
   );
 
   const query = useAuditLogsQuery(filters);

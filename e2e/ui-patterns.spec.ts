@@ -71,6 +71,32 @@ test.describe('Patrones de interfaz', () => {
     await page.getByRole('button', { name: 'Cancelar' }).click()
     await expect(page.getByTestId('form-modal')).toHaveCount(0)
   })
+
+  test('una fila clicable se puede abrir con el teclado', async ({ superAdminPage: page }) => {
+    await navigateTo(page, 'nav-roles', 'Roles y permisos')
+
+    // La matriz de permisos solo se abre haciendo clic en la fila, así que la
+    // fila debe ser enfocable y activarse con Enter: de lo contrario, gestionar
+    // permisos queda fuera del alcance de quien navega sin ratón.
+    const fila = page.getByTestId('data-table-row').filter({ hasText: /^ADMIN/ }).first()
+    await fila.focus()
+    await expect(fila).toBeFocused()
+    await page.keyboard.press('Enter')
+
+    await expect(page.getByTestId('role-permissions-modal')).toBeVisible()
+  })
+
+  test('una ruta inexistente lo dice en vez de redirigir en silencio', async ({
+    superAdminPage: page,
+  }) => {
+    await page.goto('/admin/esta-ruta-no-existe')
+
+    await expect(page.getByTestId('not-found-title')).toBeVisible()
+    expect(page.url()).toContain('/admin/esta-ruta-no-existe')
+
+    await page.getByRole('link', { name: 'Ir al dashboard' }).click()
+    await expect(page.getByTestId('page-title')).toHaveText('Dashboard')
+  })
 })
 
 test.describe('Vista de detalle', () => {

@@ -13,8 +13,10 @@ import { AppFeedback } from '@/core/ui/feedback/AppFeedback';
 import { toFriendlyMessage } from '@/core/errors/friendly-error';
 import { AdminMessages, DEFAULT_PAGE_SIZE } from '@/core/config/constants';
 import { usePermissions } from '@/core/auth/permission-checker';
+import { useAuthStore } from '@/core/auth/auth-store';
 import { PermissionCode } from '@/core/permissions/permissions.enum';
 import type { RoleCode } from '@/core/permissions/roles.enum';
+import { useDebouncedValue } from '@/core/hooks/use-debounced-value';
 import { useUsersQuery } from '../hooks/use-users-query';
 import { useChangeUserStatus, useDeleteUser } from '../hooks/use-user-mutations';
 import { getUserColumns } from './users-columns';
@@ -51,12 +53,14 @@ export function UsersManager({
   createLabel,
 }: UsersManagerProps) {
   const { hasPermission } = usePermissions();
+  const currentUserId = useAuthStore((state) => state.user?.id ?? null);
   const canCreate = hasPermission(PermissionCode.UsersCreate);
   const canUpdate = hasPermission(PermissionCode.UsersUpdate);
   const canDelete = hasPermission(PermissionCode.UsersDelete);
   const canAssignRoles = hasPermission(PermissionCode.RolesAssign);
 
   const [search, setSearch] = useState('');
+  const searchDiferido = useDebouncedValue(search);
   const [status, setStatus] = useState<StatusFilter>('all');
   // Solo tiene sentido cuando la pantalla abarca más de un rol (administradores).
   const [roleFilter, setRoleFilter] = useState<string>('all');
@@ -71,13 +75,13 @@ export function UsersManager({
 
   const filters: UserFilters = useMemo(
     () => ({
-      search: search || undefined,
+      search: searchDiferido || undefined,
       status: status === 'all' ? undefined : status,
       roleCode: roleFilter === 'all' ? roleCodes : [roleFilter as RoleCode],
       page,
       limit: DEFAULT_PAGE_SIZE,
     }),
-    [search, status, roleCodes, roleFilter, page],
+    [searchDiferido, status, roleCodes, roleFilter, page],
   );
 
   const query = useUsersQuery(filters);
@@ -126,6 +130,7 @@ export function UsersManager({
 
   const columns = getUserColumns({
     canUpdate,
+    currentUserId,
     onView: setViewingUser,
     canDelete,
     canAssignRoles,

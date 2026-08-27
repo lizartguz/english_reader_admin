@@ -135,8 +135,28 @@ export function DataTable<TData extends RowShape>({
             <TableRow
               key={row.id}
               data-testid="data-table-row"
+              // Una fila clicable debe ser alcanzable con el tabulador y
+              // activable con Enter o Espacio: si no, la acción que abre queda
+              // fuera del alcance de quien navega sin ratón.
+              tabIndex={onRowClick ? 0 : undefined}
+              role={onRowClick ? 'button' : undefined}
               onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-              className={cn(onRowClick && 'cursor-pointer')}
+              onKeyDown={
+                onRowClick
+                  ? (event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') return;
+                      // El objetivo debe ser la fila misma: dentro puede haber
+                      // botones con su propia activación por teclado.
+                      if (event.target !== event.currentTarget) return;
+                      event.preventDefault();
+                      onRowClick(row.original);
+                    }
+                  : undefined
+              }
+              className={cn(
+                onRowClick &&
+                  'cursor-pointer focus-visible:bg-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring',
+              )}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>

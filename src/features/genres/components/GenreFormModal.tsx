@@ -66,7 +66,7 @@ export function GenreFormModal({ open, onOpenChange, genre }: GenreFormModalProp
         AppFeedback.success(isEditing ? AdminMessages.UpdatedSuccess : AdminMessages.CreatedSuccess);
         onOpenChange(false);
       })
-      .catch((error) => setGeneralError(applyServerErrors(error, form.setError)));
+      .catch((error) => setGeneralError(applyServerErrors(error, form)));
   }
 
   return (
