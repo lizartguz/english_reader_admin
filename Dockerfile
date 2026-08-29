@@ -39,7 +39,9 @@ COPY docker/15-csp-origin.envsh /docker-entrypoint.d/15-csp-origin.envsh
 COPY docker/30-config.sh /docker-entrypoint.d/30-config.sh
 
 USER root
-RUN chmod +x /docker-entrypoint.d/15-csp-origin.envsh /docker-entrypoint.d/30-config.sh
+# El entrypoint genera config.js en cada arranque con las variables reales.
+RUN chmod +x /docker-entrypoint.d/15-csp-origin.envsh /docker-entrypoint.d/30-config.sh \
+    && chown -R nginx:nginx /usr/share/nginx/html
 USER nginx
 
 EXPOSE 8080
